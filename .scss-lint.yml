@@ -1,0 +1,71 @@
+linters:
+  GroupedPropertyOrder:
+    enabled: true
+    space_between_groups: true
+    min_group_size:       3
+    order:
+      display:
+        - position
+        - display
+        - visibility
+        - overflow*
+        - float
+        - clear
+        - content
+        - box-sizing
+      flex-parent:
+        - flex-direction
+        - flex-wrap
+        - flex-flow
+        - justify-content
+        - align-items
+        - align-content
+      flex-child:
+        - flex
+        - order
+        - flex-grow
+        - flex-shrink
+        - flex-basis
+        - align-self
+      tables:
+        - table-layout
+        - border-collapse
+        - empty-cells
+      dimensional:
+        - top
+        - left
+        - bottom
+        - right
+        - height
+        - min-height
+        - max-height
+        - width
+        - min-width
+        - max-width
+        - padding*
+        - margin*
+        - transform
+      presentational:
+        - outline*
+        - border*
+        - background*
+        - opacity
+        - z-index
+        - color
+        - box-shadow
+        - filter
+      lists:
+        - list-style*
+      text:
+        - font*
+        - line-height
+        - letter-spacing
+        - text-align
+        - text-decoration
+        - text-indent
+        - text-transform
+        - text-shadow
+        - white-space
+      interaction:
+        - transition
+        - animation
