@@ -79,54 +79,80 @@ The configuration may be altered in the same way as other linters, by adding a s
 <pre><code lang="yaml">linters:
   GroupedPropertyOrder:
     enabled: true
-    space_between_groups: true
-    min_group_size: 3
-    order:
+    defaults:
+      space_around: true
+      max_no_space: 3
+    groups:
       groupname:
-        - propertyone
-        - property-two
-        …
+        properties:
+          - propertyone
+          - property-two
+          …
       another_group:
-        - property
-        - propertywithwildcard*
+        space_around: false
+        properties:
+          - property
+          - propertywithwildcard*
       …
 </code></pre>
 
 h3. Options
 
 - @enabled@ _(boolean)_ := switches the module on and off
-- @space_between_groups@ _(boolean)_ := whether to require space between groups of selectors. Defaults to @true@
-- @min_group_size@ _(int)_ := specifies the maximum number of properties that may be in a group before space is required around it (default: 3. Ignored if @space_between_groups@ is @false@)
-- @order@ _(hash)_ := a hash of the configured groups. The groupname should be vaguely human-readable to provide sane lint messages =)
+- @defaults@ _(hash)_ := default linting settings that are applied to all groups (can be overridden per-group)
+- @groups@ _(hash)_ := a hash of the configured groups. The groupname should be vaguely human-readable to provide sane lint messages =)
+
+
+h4. Default options
+
+* - @space_around@ _(boolean)_ := whether to require space around individual groups (default: true)
+* - @max_no_space@ _(int)_ := the maximum number of properties that can be specified in a group before space is required around it (default: 3, ignored if @space_around@ is @false@)
 
 
 h3. Specifying groups
 
-Groups are specified as a YAML hash, in the order in which they should appear in your SASS. Each individual member is an array of properties that may appear in that group.
-For example:
+Groups are specified as a YAML hash, in the order in which they should appear in your SASS. Each group *must* have a @properties@ member, containing an array of properties that may appear in this group.
 
-<pre><code lang="yaml">order:
+<pre><code lang="yaml">groups:
   tables:
-    - table-layout
-    - border-collapse
-    - empty-cells</code></pre>
+    properties:
+      - table-layout
+      - border-collapse
+      - empty-cells</code></pre>
 
 Specifies a group called @tables@, which may contain @table-layout@, @border-collapse@ and @empty-cells@ properties.
+
+h4. Wildcard properties
 
 In cases where a number of properties may have the same prefix, wildcard properties may used instead.
 Thus, the following group definitions are equivalent.
 
-<pre><code lang="yaml">order:
+<pre><code lang="yaml">groups:
   text:
-    - font
-    - font-size
-    - font-family
-    - font-style
+    properties:
+      - font
+      - font-size
+      - font-family
+      - font-style
   text_two:
-    - font*</code></pre>
+    properties:
+      - font*</code></pre>
 
 Naturally, you might want to use this functionality carefully…
 
+h4. Overriding defaults
+
+In some cases, you may wish to override the default linting options. This can be done by adding the appropriate option to the group hash:
+
+<pre><code lang="yaml">groups:
+  tables:
+    max_no_space: 1
+    properties:
+      - table-layout
+      - border-collapse
+      - empty-cells</code></pre>
+
+This defines a @tables@ group as earlier, but requires a space around it at all times.
 
 h2. Why?
 
