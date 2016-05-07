@@ -36,7 +36,7 @@ module SCSSLint
 
         # clean the name
         name = prop.name.join.gsub(/^(-\w+(-osx)?-)?/, '')
-        name_splat = name.gsub(/-.*$/, '*')
+        name_splat = name.gsub(/-.*$/, '')+'*'
 
         # if there’s no group, move on
         next unless @property_to_group.key? name or @property_to_group.key? name_splat
