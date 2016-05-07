@@ -1,71 +1,84 @@
 linters:
   GroupedPropertyOrder:
     enabled: true
-    space_between_groups: true
-    min_group_size:       3
-    order:
+    defaults:
+      space_around: true
+      max_no_space: 3
+    groups:
       display:
-        - position
-        - display
-        - visibility
-        - overflow*
-        - float
-        - clear
-        - content
-        - box-sizing
+        properties:
+          - position
+          - display
+          - visibility
+          - overflow*
+          - float
+          - clear
+          - content
+          - box-sizing
       flex-parent:
-        - flex-direction
-        - flex-wrap
-        - flex-flow
-        - justify-content
-        - align-items
-        - align-content
+        properties:
+          - flex-direction
+          - flex-wrap
+          - flex-flow
+          - justify-content
+          - align-items
+          - align-content
       flex-child:
-        - flex
-        - order
-        - flex-grow
-        - flex-shrink
-        - flex-basis
-        - align-self
+        properties:
+          - flex
+          - order
+          - flex-grow
+          - flex-shrink
+          - flex-basis
+          - align-self
       tables:
-        - table-layout
-        - border-collapse
-        - empty-cells
+        max_no_space: 1
+        properties:
+          - table-layout
+          - border-collapse
+          - empty-cells
       dimensional:
-        - top
-        - left
-        - bottom
-        - right
-        - height
-        - min-height
-        - max-height
-        - width
-        - min-width
-        - max-width
-        - padding*
-        - margin*
-        - transform
+        properties:
+          - top
+          - left
+          - bottom
+          - right
+          - height
+          - min-height
+          - max-height
+          - width
+          - min-width
+          - max-width
+          - padding*
+          - margin*
+          - transform
       presentational:
-        - outline*
-        - border*
-        - background*
-        - opacity
-        - z-index
-        - color
-        - box-shadow
-        - filter
+        properties:
+          - outline*
+          - border*
+          - background*
+          - opacity
+          - z-index
+          - color
+          - box-shadow
+          - filter
       lists:
-        - list-style*
+        space_around: false
+        properties:
+          - counter*
+          - list-style*
       text:
-        - font*
-        - line-height
-        - letter-spacing
-        - text-align
-        - text-decoration
-        - text-indent
-        - text-transform
-        - text-shadow
-        - white-space
+        properties:
+          - font*
+          - line-height
+          - letter-spacing
+          - text-align
+          - text-decoration
+          - text-indent
+          - text-transform
+          - text-shadow
+          - white-space
       interaction:
-        - transition
-        - animation
+        properties:
+          - transition
+          - animation

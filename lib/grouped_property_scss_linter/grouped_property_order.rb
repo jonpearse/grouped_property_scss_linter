@@ -6,15 +6,15 @@ module SCSSLint
     def visit_root( node )
 
       # get configured order
-      configured_groups = get_order_from_conf
+      @configured_groups = get_order_from_conf
 
       # and map things around
       @groups = []
       @property_to_group = {}
-      configured_groups.each_pair do |group, props|
-        @groups.push group
-        props.each do |property|
-          @property_to_group[property] = group
+      @configured_groups.each_pair do |name, group|
+        @groups.push name
+        group['properties'].each do |property|
+          @property_to_group[property] = name
         end
       end
 
@@ -34,13 +34,14 @@ module SCSSLint
       grouped_properties = {}
       props = sortable_properties.map do |prop|
 
-        # clean the name
-        name = prop.name.join.gsub(/^(-\w+(-osx)?-)?/, '')
-        name_splat = name.gsub(/-.*$/, '')+'*'
+        # simplify the name a little
+        name = prop.name.join
 
-        # if there’s no group, move on
-        next unless @property_to_group.key? name or @property_to_group.key? name_splat
-        group = @property_to_group[name] || @property_to_group[name_splat]
+        # attempt to match the name
+        group = find_match_for_property name
+
+        # if it didn’t find anything, move on
+        next if group.nil?
 
         # if there’s no existing group
         unless grouped_properties.key? group
@@ -83,14 +84,61 @@ module SCSSLint
 
     private
 
+      # Acquires configuration and populates out a group array
       def get_order_from_conf
-        case config['order']
-          when Array
-          when Hash
-            config['order']
-          else
-            raise SCSSLint::Exceptions::LinterError, 'No property sort order specified!'
+
+        # 1. acquire defaults + default them, just in case
+        defaults = config['defaults']
+        defaults['space_around'] |= true
+        defaults['max_no_space'] = 3
+
+        # 2. acquire groups
+        groups = config['groups']
+
+        # 3. munge
+        groups.each_pair do |name, group|
+
+          # a. if it’s an array, cast it
+          group = { 'properties' => group } if group.is_a? Array
+
+          # b. merge in some defaults
+          group['space_around'] = defaults['space_around'] if group['space_around'].nil?
+          group['max_no_space'] ||= defaults['max_no_space']
+
         end
+
+        groups
+
+      end
+
+      # Finds a matching group for a specified property
+      def find_match_for_property( prop )
+
+        # sanitise the name by removing any browser prefixes
+        prop = prop.gsub(/^(-\w+(-osx)?-)?/, '')
+
+        # iteratively remove hyphens from the property…
+        while prop =~ /\-/
+
+          # if we know about this property or its splatted variety…
+          if @property_to_group.key? prop or @property_to_group.key? prop+'*'
+
+            return @property_to_group[prop] || @property_to_group[prop+'*']
+
+          end
+
+          prop.gsub! /\-(\w+)$/, ''
+
+        end
+
+        # finally…
+        if @property_to_group.key? prop or @property_to_group.key? prop+'*'
+
+          return @property_to_group[prop] || @property_to_group[prop+'*']
+
+        end
+
+        nil
 
       end
 
@@ -110,9 +158,7 @@ module SCSSLint
         quick_check_order props
 
         # if we’re checking whitespace, do so
-        check_whitespace( grouped ) unless config['space_between_groups'].nil? or !config['space_between_groups'] or grouped.length < 2
-
-        return
+        check_whitespace( grouped ) unless grouped.length < 2
 
       end
 
@@ -146,35 +192,48 @@ module SCSSLint
 
       def check_whitespace( grouped )
 
-        # get a maximum limit
-        limit = config['min_group_size'] || 3
+        # get a quick handle on all the groups we’ve found
+        detected_groups = grouped.keys
 
-        # for all after the first group
-        previous = nil
-        @groups.each do |group|
+        # iterate through
+        curr_idx = 0
+        grouped.each_pair do |name, current|
 
-          # if we don’t know about it, bail
-          next unless grouped.key? group
+          # get a configuration
+          group_conf = @configured_groups[name]
 
-          # set current
-          current = grouped[group]
+          # if we don’t care about space, bail
+          (curr_idx += 1 and next) unless group_conf['space_around']
 
-          # if we don’t have previous…
-          (previous = current and next) if previous.nil?
+          # similarly, if this group is too small to trigger spacing, bounce
+          (curr_idx += 1 and next)unless current[:props].length > group_conf['max_no_space']
 
-          # if there are fewer than the limit in this group, bounce
-          next if current[:props].length < limit
+          # set some easy references
+          next_group = detected_groups.length > curr_idx ? grouped[detected_groups[curr_idx + 1]] : nil
+          prev_group = curr_idx > 0 ? grouped[detected_groups[curr_idx - 1]] : nil
 
-          # look for some space
-          unless ((current[:first] - previous[:last]) >= 2)
-            add_lint current[:props].first[:node], "Must be at least one empty line above ‘#{current[:props].first[:name]}’"
+          # if there’s something after us, and there’s no space
+          if !next_group.nil? and ((next_group[:first] - current[:last]) < 2)
+
+            # raise a lint error
+            add_lint current[:props].last[:node], "Must be at least one empty line after ‘#{current[:props].last[:name]}’"
+
+            # also, flag the next group so we don’t catch it next time ‘round
+            next_group[:raised] = true
           end
 
-          # set previous
-          previous = current
+          # if there’s something before us, and there’s no space…
+          if !prev_group.nil? and ((current[:first] - prev_group[:last]) < 2) and current[:raised].nil?
+
+            # raise a lint error
+            add_lint current[:props].first[:node], "Must be at least one empty line before ‘#{current[:props].first[:name]}’"
+
+          end
+
+          # finally, increment
+          curr_idx += 1
 
         end
-
     end
   end
 end
