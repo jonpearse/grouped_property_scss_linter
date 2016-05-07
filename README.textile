@@ -1,0 +1,3 @@
+h1. Grouped Property Linter for SCSS-Lint
+
+For now, everything is in the @develop@ branch. A proper release will be forthcoming sometime…
