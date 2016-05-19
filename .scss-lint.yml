@@ -1,84 +1,14 @@
 linters:
   GroupedPropertyOrder:
     enabled: true
+
+    # defaults: applied to all groups
     defaults:
       space_around: true
       max_no_space: 3
+
+    # preferred style
+    style:  grouped-smacss
+
+    # or a definition of your own. Note that this takes precedence over style
     groups:
-      display:
-        properties:
-          - position
-          - display
-          - visibility
-          - overflow*
-          - float
-          - clear
-          - content
-          - box-sizing
-      flex-parent:
-        properties:
-          - flex-direction
-          - flex-wrap
-          - flex-flow
-          - justify-content
-          - align-items
-          - align-content
-      flex-child:
-        properties:
-          - flex
-          - order
-          - flex-grow
-          - flex-shrink
-          - flex-basis
-          - align-self
-      tables:
-        max_no_space: 1
-        properties:
-          - table-layout
-          - border-collapse
-          - empty-cells
-      dimensional:
-        properties:
-          - top
-          - left
-          - bottom
-          - right
-          - height
-          - min-height
-          - max-height
-          - width
-          - min-width
-          - max-width
-          - padding*
-          - margin*
-          - transform
-      presentational:
-        properties:
-          - outline*
-          - border*
-          - background*
-          - opacity
-          - z-index
-          - color
-          - box-shadow
-          - filter
-      lists:
-        space_around: false
-        properties:
-          - counter*
-          - list-style*
-      text:
-        properties:
-          - font*
-          - line-height
-          - letter-spacing
-          - text-align
-          - text-decoration
-          - text-indent
-          - text-transform
-          - text-shadow
-          - white-space
-      interaction:
-        properties:
-          - transition
-          - animation

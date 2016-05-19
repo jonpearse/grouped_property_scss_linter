@@ -90,13 +90,16 @@ module SCSSLint
         # 1. acquire defaults + default them, just in case
         defaults = config['defaults']
         defaults['space_around'] |= true
-        defaults['max_no_space'] = 3
+        defaults['max_no_space'] |= 3
 
-        # 2. acquire groups
-        groups = config['groups']
+        # 2, acquire groups
+        groups = config['groups'] || load_groups_from_style
 
-        # 3. munge
-        groups.each_pair do |name, group|
+        # 3. if it failed, bail
+        raise 'No groups configured' if groups.nil?
+
+        # 4. munge
+        groups.update(groups) do |name, group|
 
           # a. if it’s an array, cast it
           group = { 'properties' => group } if group.is_a? Array
@@ -105,10 +108,37 @@ module SCSSLint
           group['space_around'] = defaults['space_around'] if group['space_around'].nil?
           group['max_no_space'] ||= defaults['max_no_space']
 
+          # c. return
+          group
+
         end
 
         groups
 
+      end
+
+      # Loads a group from a configured style
+      def load_groups_from_style
+
+        # 0. if the style is blank/empty…
+        (raise 'No style specified' and return) if config['style'].empty?
+
+        # 1. attempt to find the file
+        data_filename = File.join(GroupedPropertyScssLinter::STYLES_DIR, "#{config['style']}.yaml")
+
+        # 2. does it exist
+        (raise "No style ‘#{config['style']}’ found" and return) unless File.exists? data_filename
+
+        # 3. can we read it
+        (raise "Cannot read style ‘#{config['style']}’" and return) unless File.readable? data_filename
+
+        # 4. open
+        style_config = YAML.load_file data_filename
+
+        # 5. barf?
+        (raise "Bad style file found for ‘#{config['style']}’" and return) if style_config.nil? or style_config['groups'].nil?
+
+        style_config['groups']
       end
 
       # Finds a matching group for a specified property

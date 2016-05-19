@@ -82,25 +82,16 @@ The configuration may be altered in the same way as other linters, by adding a s
     defaults:
       space_around: true
       max_no_space: 3
+    style: smacss
     groups:
-      groupname:
-        properties:
-          - propertyone
-          - property-two
-          …
-      another_group:
-        space_around: false
-        properties:
-          - property
-          - propertywithwildcard*
-      …
 </code></pre>
 
 h3. Options
 
 - @enabled@ _(boolean)_ := switches the module on and off
 - @defaults@ _(hash)_ := default linting settings that are applied to all groups (can be overridden per-group)
-- @groups@ _(hash)_ := a hash of the configured groups. The groupname should be vaguely human-readable to provide sane lint messages =)
+- @style@ _(string, optional)_ := the name of a preconfigured style (see below, defaults to @grouped-smacss@)
+- @groups@ _(hash, optional)_ := a hash of configured groups. Note that specifying anything here will override the @style@ option
 
 
 h4. Default options
@@ -108,8 +99,17 @@ h4. Default options
 * - @space_around@ _(boolean)_ := whether to require space around individual groups (default: true)
 * - @max_no_space@ _(int)_ := the maximum number of properties that can be specified in a group before space is required around it (default: 3, ignored if @space_around@ is @false@)
 
+h4. Predefined styles
 
-h3. Specifying groups
+There a number of property orders/styles supplied with the gem. These are:
+
+- @smacss@ := an implementation of "SMACSS":https://smacss.com/book/formatting
+- @grouped-smacss@ _(default)_ := a tweaked version of SMACSS with slightly more granular grouping
+- @concentric@ := an implementation of "Concentric CSS":https://github.com/brandon-rhodes/Concentric-CSS
+- @personal@ := my personal ordering, just cuz…
+
+
+h3. Specifying your own configuration
 
 Groups are specified as a YAML hash, in the order in which they should appear in your SASS. Each group *must* have a @properties@ member, containing an array of properties that may appear in this group.
 

@@ -1,0 +1,82 @@
+# Concentric CSS [ http://rhodesmill.org/brandon/2011/concentric-css/ ]
+#
+# This is roughly based on SCSS-Lint‘s specification, found at
+# [ https://github.com/brigade/scss-lint/blob/master/data/property-sort-orders/concentric.txt ]
+groups:
+  directions:
+    - display
+    - position
+    - top
+    - right
+    - bottom
+    - left
+
+  columns:
+    - columns
+    - column*
+
+  float:
+    - float
+    - clear
+
+  transform:
+    - transform*
+    - transition
+    - animation*
+
+  visibility:
+    - visibility
+    - opacity
+    - z-index
+
+  box:
+    - margin*
+    - outline
+    - border
+    - border-style
+    - border-color
+    - border-radius
+    - border-width
+    - border-image
+    - border-top*
+    - border-right*
+    - border-bottom*
+    - border-left*
+    - box-shadow
+    - background*
+    - cursor
+    - padding*
+
+  dimensions:
+    - width
+    - min-width
+    - max-width
+    - height
+    - min-height
+    - max-height
+    - overflow*
+
+  lists:
+    - list-style*
+
+  tables:
+    - caption-side
+    - table-layout
+    - border-collapse
+    - border-spacing
+    - empty-cells
+
+  content:
+    - vertical-align
+    - text*
+    - line-height
+    - word-spacing
+    - letter-spacing
+    - white-space
+    - color
+    - font*
+
+  generated:
+    - content
+    - quotes
+    - counter*  # it strikes me that this should be in lists, but it’s generated, so…
