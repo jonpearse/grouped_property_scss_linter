@@ -1,3 +1,164 @@
 h1. Grouped Property Linter for SCSS-Lint
 
-For now, everything is in the @develop@ branch. A proper release will be forthcoming sometime…
+This is a plugin linter for "SCSS-Lint":https://github.com/brigade/scss-lint that provides a saner alternative to the built-in @PropertySortOrder@ linter.
+
+Instead of requiring properties to be arranged in a strict order, it instead allows groups of properties (eg: @top@, @right@, @bottom@ & @left@) to be defined, and then lints the order of the _groups_ in your SASS.
+As long as properties are grouped correctly, the order of individual properties is unimportant.
+
+h2. Examples
+
+Using the default configuration:
+
+*Bad*
+
+<pre><code lang="css">.selector {
+  padding: .625rem;
+
+  text-decoration: underline;
+  font-size: 1rem;
+  line-height: 1.3;
+  font-weight: bold;
+  color: rgba(20, 20, 20, .8);
+
+  display: inline-block;
+  background: #F00;
+}</code></pre>
+
+*Good*
+
+<pre><code lang="css">.selector {
+  display: inline-block;
+
+  padding: .625rem;
+
+  color: rgba(20, 20, 20, .8);
+  background: #F00;
+
+  font-size: 1rem;
+  line-height: 1.3em;
+  font-weight: bold;
+  text-decoration: underline;
+}</code></pre>
+
+Because the order of individual properties within a group is ignored, neither of the selectors below would generate a warning.
+
+<pre><code lang="css">.selector-one {
+  display: block;
+
+  height: 10em;
+  width:  90%;
+}
+
+.selector-two {
+  display: block;
+
+  width:  90%;
+  height: 10em;
+}</code></pre>
+
+h2. Usage
+
+In order to use this linter, you’ll need to modify both your Gemfile and scss-lint configuration file (typically @.scss-lint@).
+
+*Gemfile*
+
+<pre><code lang="ruby">gem 'grouped_property_scss_linter', :git => 'git@github.com:jonpearse/grouped_property_scss_linter.git'</code></pre>
+
+*SCSS-Lint configuration file*
+
+You will need to add @grouped_property_scss_linter@ to the @plugin_gems@ variable:
+
+<pre><code lang="yaml">plugin_gems: ['grouped_property_scss_linter']</code></pre>
+
+h2. Configuration
+
+When included, this linter is enabled by default, and enforces my personal coding style, which may not be entirely suitable for your needs =)
+
+The configuration may be altered in the same way as other linters, by adding a section to your SCSS-Lint configuration file.
+
+<pre><code lang="yaml">linters:
+  GroupedPropertyOrder:
+    enabled: true
+    defaults:
+      space_around: true
+      max_no_space: 3
+    style: smacss
+    groups:
+</code></pre>
+
+h3. Options
+
+- @enabled@ _(boolean)_ := switches the module on and off
+- @defaults@ _(hash)_ := default linting settings that are applied to all groups (can be overridden per-group)
+- @style@ _(string, optional)_ := the name of a preconfigured style (see below, defaults to @grouped-smacss@)
+- @groups@ _(hash, optional)_ := a hash of configured groups. Note that specifying anything here will override the @style@ option
+
+
+h4. Default options
+
+* - @space_around@ _(boolean)_ := whether to require space around individual groups (default: true)
+* - @max_no_space@ _(int)_ := the maximum number of properties that can be specified in a group before space is required around it (default: 3, ignored if @space_around@ is @false@)
+
+h4. Predefined styles
+
+There a number of property orders/styles supplied with the gem. These are:
+
+- @smacss@ := an implementation of "SMACSS":https://smacss.com/book/formatting
+- @grouped-smacss@ _(default)_ := a tweaked version of SMACSS with slightly more granular grouping
+- @concentric@ := an implementation of "Concentric CSS":https://github.com/brandon-rhodes/Concentric-CSS
+- @personal@ := my personal ordering, just cuz…
+
+
+h3. Specifying your own configuration
+
+Groups are specified as a YAML hash, in the order in which they should appear in your SASS. Each group *must* have a @properties@ member, containing an array of properties that may appear in this group.
+
+<pre><code lang="yaml">groups:
+  tables:
+    properties:
+      - table-layout
+      - border-collapse
+      - empty-cells</code></pre>
+
+Specifies a group called @tables@, which may contain @table-layout@, @border-collapse@ and @empty-cells@ properties.
+
+h4. Wildcard properties
+
+In cases where a number of properties may have the same prefix, wildcard properties may used instead.
+Thus, the following group definitions are equivalent.
+
+<pre><code lang="yaml">groups:
+  text:
+    properties:
+      - font
+      - font-size
+      - font-family
+      - font-style
+  text_two:
+    properties:
+      - font*</code></pre>
+
+Naturally, you might want to use this functionality carefully…
+
+h4. Overriding defaults
+
+In some cases, you may wish to override the default linting options. This can be done by adding the appropriate option to the group hash:
+
+<pre><code lang="yaml">groups:
+  tables:
+    max_no_space: 1
+    properties:
+      - table-layout
+      - border-collapse
+      - empty-cells</code></pre>
+
+This defines a @tables@ group as earlier, but requires a space around it at all times.
+
+h2. Why?
+
+I’ll write about this sometime, but for now the short version is ‘because’.
+
+h2. Mandatory sales pitch
+
+When I’m not hacking at random things, I’m a freelance web developer specialising in all things front-end, based in the beautiful city of Cardiff, UK.
+I’m usually kept fairly busy with project work, but I’m always on the lookout for new people to do cool stuff with. "Drop me a line":mailto:hello@jonpearse.net – I’d love to hear from you!

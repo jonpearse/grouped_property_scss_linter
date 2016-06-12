@@ -1,0 +1,14 @@
+linters:
+  GroupedPropertyOrder:
+    enabled: true
+
+    # defaults: applied to all groups
+    defaults:
+      space_around: true
+      max_no_space: 3
+
+    # preferred style
+    style:  grouped-smacss
+
+    # or a definition of your own. Note that this takes precedence over style
+    groups:
