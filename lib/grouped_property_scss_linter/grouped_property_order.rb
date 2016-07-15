@@ -91,8 +91,8 @@ module SCSSLint
 
         # 1. acquire defaults + default them, just in case
         defaults = config['defaults']
-        defaults['space_around'] |= true
-        defaults['max_no_space'] |= 3
+        defaults['space_around']     |= true
+        defaults['max_no_space']     |= 3
 
         # 2, acquire groups
         groups = config['groups'] || load_groups_from_style
@@ -208,7 +208,10 @@ module SCSSLint
 
           # if it’s less-than, error out
           if idx < current_group
-            add_lint prop[:node], "property ‘#{prop[:name].bold}’ should be #{hint_text_for(prop, grouped, props)}"
+
+            ext = config['extended_hinting'] ? " (assigned group ‘#{prop[:group].bold}’, found group ‘#{@groups[current_group].bold}’)" : ""
+
+            add_lint prop[:node], "property ‘#{prop[:name].bold}’ should be #{hint_text_for(prop, grouped, props)}#{ext}"
             good = false
           else
             current_group = idx
