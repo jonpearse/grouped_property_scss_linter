@@ -28,7 +28,6 @@ Using the default configuration:
 
 <pre><code lang="css">.selector {
   display: inline-block;
-
   padding: .625rem;
 
   color: rgba(20, 20, 20, .8);
@@ -92,7 +91,7 @@ h3. Options
 - @defaults@ _(hash)_ := default linting settings that are applied to all groups (can be overridden per-group)
 - @style@ _(string, optional)_ := the name of a preconfigured style (see below, defaults to @grouped-smacss@)
 - @groups@ _(hash, optional)_ := a hash of configured groups. Note that specifying anything here will override the @style@ option
-
+- @extended_hinting@ _(boolean, optional)_ := enables additional group information in hinting output (default @false@)
 
 h4. Default options
 
@@ -156,7 +155,17 @@ This defines a @tables@ group as earlier, but requires a space around it at all 
 
 h2. Why?
 
-I’ll write about this sometime, but for now the short version is ‘because’.
+I’ve written a "blog post":https://jonpearse.net/articles/2016/07/on-linting-and-bringing-order-to-sass about this, but the short version is I really get on with SCSS-Lint’s default @PropertySortOrder@ linter =)
+
+h2. Version History
+
+h3. 1.1.0 _(July 15th, 2016)_
+
+* improved hint messages to be somewhat more useful to the average developer
+
+h2. 1.0.0 _(June 12th, 2016)_
+
+* initial release
 
 h2. Mandatory sales pitch
 
