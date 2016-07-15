@@ -71,7 +71,7 @@ You will need to add @grouped_property_scss_linter@ to the @plugin_gems@ variabl
 
 h2. Configuration
 
-When included, this linter is enabled by default, and enforces my personal coding style, which may not be entirely suitable for your needs =)
+When included, this linter is enabled by default, and enforces a modified version of "SMACSS’s categories":https://smacss.com/book/categorizing
 
 The configuration may be altered in the same way as other linters, by adding a section to your SCSS-Lint configuration file.
 
@@ -87,7 +87,7 @@ The configuration may be altered in the same way as other linters, by adding a s
 
 h3. Options
 
-- @enabled@ _(boolean)_ := switches the module on and off
+- @enabled@ _(boolean)_ := switches the module on and off (default: on)
 - @defaults@ _(hash)_ := default linting settings that are applied to all groups (can be overridden per-group)
 - @style@ _(string, optional)_ := the name of a preconfigured style (see below, defaults to @grouped-smacss@)
 - @groups@ _(hash, optional)_ := a hash of configured groups. Note that specifying anything here will override the @style@ option
@@ -95,8 +95,8 @@ h3. Options
 
 h4. Default options
 
-* - @space_around@ _(boolean)_ := whether to require space around individual groups (default: true)
-* - @max_no_space@ _(int)_ := the maximum number of properties that can be specified in a group before space is required around it (default: 3, ignored if @space_around@ is @false@)
+- @space_around@ _(boolean)_ := whether to require space around individual groups (default: true)
+- @max_no_space@ _(int)_ := the maximum number of properties that can be specified in a group before space is required around it (default: 3, ignored if @space_around@ is @false@)
 
 h4. Predefined styles
 
@@ -155,15 +155,19 @@ This defines a @tables@ group as earlier, but requires a space around it at all 
 
 h2. Why?
 
-I’ve written a "blog post":https://jonpearse.net/articles/2016/07/on-linting-and-bringing-order-to-sass about this, but the short version is I really get on with SCSS-Lint’s default @PropertySortOrder@ linter =)
+I’ve written a "blog post":https://jonpearse.net/articles/2016/07/on-linting-and-bringing-order-to-sass about this, but the short version is that I really don’t get on with SCSS-Lint’s default @PropertySortOrder@ linter =)
 
 h2. Version History
+
+h3. 1.1.1 _(July 15th, 2016)_
+
+* fixing dumb typoes in the readme
 
 h3. 1.1.0 _(July 15th, 2016)_
 
 * improved hint messages to be somewhat more useful to the average developer
 
-h2. 1.0.0 _(June 12th, 2016)_
+h3. 1.0.0 _(June 12th, 2016)_
 
 * initial release
 
