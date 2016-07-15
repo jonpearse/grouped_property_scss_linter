@@ -12,3 +12,6 @@ linters:
 
     # or a definition of your own. Note that this takes precedence over style
     groups:
+
+    # whether you get extended hinting information in the output
+    extended_hinting:  false
