@@ -11,11 +11,13 @@ module SCSSLint
       # and map things around
       @groups = []
       @property_to_group = {}
+      count = 0
       @configured_groups.each_pair do |name, group|
         @groups.push name
         group['properties'].each do |property|
-          @property_to_group[property] = name
+          @property_to_group[property] = { name: name, idx: count }
         end
+        count = count+1
       end
 
       yield
@@ -44,17 +46,17 @@ module SCSSLint
         next if group.nil?
 
         # if there’s no existing group
-        unless grouped_properties.key? group
-          grouped_properties[group] = { first: 1.0/0, last: 0, props: [] }
+        unless grouped_properties.key? group[:name]
+          grouped_properties[group[:name]] = { first: 1.0/0, last: 0, props: [] }
         end
 
         # build a concat
-        concat = { name: name, node: prop, group: group, line: prop.line }
+        concat = { name: name, node: prop, group: group[:name], line: prop.line, group_idx: group[:idx] }
 
         # drop things on
-        grouped_properties[group][:first] = [grouped_properties[group][:first], prop.line].min
-        grouped_properties[group][:last]  = [grouped_properties[group][:last],  prop.line].max
-        grouped_properties[group][:props] << concat
+        grouped_properties[group[:name]][:first] = [grouped_properties[group[:name]][:first], prop.line].min
+        grouped_properties[group[:name]][:last]  = [grouped_properties[group[:name]][:last],  prop.line].max
+        grouped_properties[group[:name]][:props] << concat
 
         concat
 
@@ -184,15 +186,14 @@ module SCSSLint
         end
 
         # quick duck-type
-        # TODO: proper sense-checking
-        quick_check_order props
+        quick_check_order props, grouped
 
         # if we’re checking whitespace, do so
         check_whitespace( grouped ) unless grouped.length < 2
 
       end
 
-      def quick_check_order( props )
+      def quick_check_order( props, grouped )
 
         current_group = 0
         good = true
@@ -207,8 +208,7 @@ module SCSSLint
 
           # if it’s less-than, error out
           if idx < current_group
-            # @TODO: remove in lieu of proper checking
-            add_lint prop[:node], "Found property ‘#{prop[:name]}’ in group ‘#{@groups[current_group]}’ (should be in ‘#{prop[:group]}’)"
+            add_lint prop[:node], "property ‘#{prop[:name].bold}’ should be #{hint_text_for(prop, grouped, props)}"
             good = false
           else
             current_group = idx
@@ -264,6 +264,44 @@ module SCSSLint
           curr_idx += 1
 
         end
-    end
+      end
+
+      def hint_text_for( prop, grouped_props, context )
+
+        # get target group
+        dst_group = prop[:group]
+
+        # if we know about the group…
+        if grouped_props.key? dst_group
+
+          # get the first property of the current group
+          dst_prop = grouped_props[dst_group][:props].first
+
+          # if it’s a different property, return
+          return "after ‘#{dst_prop[:name].bold}’" if dst_prop != prop
+        end
+
+        # either our offending property is the sole member of a group, or it’s very lost… so look for a previous marker
+        curr_idx = prop[:group_idx]
+        while curr_idx > 0
+
+          # decrement and reset
+          curr_idx  = curr_idx - 1
+          dst_group = @groups[curr_idx]
+
+          # look
+          if grouped_props.key? dst_group
+
+            # get the _last_ property of the group
+            dst_prop = grouped_props[dst_group][:props].last
+
+            # and return
+            return "after ‘#{dst_prop[:name].bold}’"
+          end
+        end
+
+        # otherwise, it probably belongs right at the start
+        "before ‘#{context.first[:name].bold}’"
+      end
   end
 end
