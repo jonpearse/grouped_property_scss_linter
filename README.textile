@@ -61,7 +61,7 @@ In order to use this linter, you’ll need to modify both your Gemfile and scss-
 
 *Gemfile*
 
-<pre><code lang="ruby">gem 'grouped_property_scss_linter', :git => 'git@github.com:jonpearse/grouped_property_scss_linter.git'</code></pre>
+<pre><code lang="ruby">gem 'grouped_property_scss_linter'</code></pre>
 
 *SCSS-Lint configuration file*
 
@@ -158,6 +158,10 @@ h2. Why?
 I’ve written a "blog post":https://jonpearse.net/articles/2016/07/on-linting-and-bringing-order-to-sass about this, but the short version is that I really don’t get on with SCSS-Lint’s default @PropertySortOrder@ linter =)
 
 h2. Version History
+
+h3. 1.1.3 _(March 18th, 2017)_
+
+* eventually pushing this up to RubyGems
 
 h3. 1.1.1 _(July 15th, 2016)_
 
