@@ -1,4 +1,4 @@
-Copyright (c) 2016 Jon Pearse
+Copyright (c) 2016–2017 Jon Pearse
 
 MIT License
 
