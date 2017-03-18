@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Jon Pearse"]
   spec.email         = ["jon@jonpearse.net"]
   spec.summary       = "SCSS Lint plugin"
-  spec.description   = "Plugin for SCSS lint that lints the order of properties based on fuzzy groups",
+  spec.description   = "Plugin for SCSS lint that lints the order of properties based on fuzzy groups"
   spec.homepage      = "https://github.com/jonpearse/grouped_property_scss_linter"
   spec.license       = "MIT"
 
