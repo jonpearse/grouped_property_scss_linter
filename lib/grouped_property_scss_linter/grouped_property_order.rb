@@ -97,7 +97,17 @@ module SCSSLint
         raise 'No groups configured' if groups.nil?
 
         # 4. if we’re worrying about CSS variables
-        groups = { 'css_vars' => { 'properties' => [ '{VARIABLE}' ]}}.merge( groups ) if config['css_variables_first']
+        if config['css_variables_first']
+
+          groups = {
+            'css_vars' => {
+              'properties' => [ '{VARIABLE}' ],
+              'space_around' => true,
+              'max_no_space' => 0
+            }
+          }.merge( groups )
+
+        end
 
         # 5. munge
         groups.update( groups ) do |name, group|
