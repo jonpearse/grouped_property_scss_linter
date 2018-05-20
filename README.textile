@@ -90,6 +90,7 @@ h3. Options
 - @enabled@ _(boolean)_ := switches the module on and off (default: on)
 - @defaults@ _(hash)_ := default linting settings that are applied to all groups (can be overridden per-group)
 - @style@ _(string, optional)_ := the name of a preconfigured style (see below, defaults to @grouped-smacss@)
+- @css_variables_first@ _(boolean, optional)_ := whether or not require CSS variables (custom properties) are defined first (default: @true@)
 - @groups@ _(hash, optional)_ := a hash of configured groups. Note that specifying anything here will override the @style@ option
 - @extended_hinting@ _(boolean, optional)_ := enables additional group information in hinting output (default @false@)
 
