@@ -10,6 +10,9 @@ linters:
     # preferred style
     style:  grouped-smacss
 
+    # whether CSS variables should go first, or be ignored
+    css_variables_first: true
+
     # or a definition of your own. Note that this takes precedence over style
     groups:
 

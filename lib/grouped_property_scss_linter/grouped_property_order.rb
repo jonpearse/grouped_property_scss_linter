@@ -100,7 +100,10 @@ module SCSSLint
         # 3. if it failed, bail
         raise 'No groups configured' if groups.nil?
 
-        # 4. munge
+        # 4. if we’re worrying about CSS variables
+        groups = { 'css_vars' => { 'properties' => [ '{VARIABLE}' ]}}.merge( groups ) if config['css_variables_first']
+
+        # 5. munge
         groups.update(groups) do |name, group|
 
           # a. if it’s an array, cast it
@@ -146,6 +149,9 @@ module SCSSLint
       # Finds a matching group for a specified property
       def find_match_for_property( prop )
 
+        # if it’s a property
+        prop = '{VARIABLE}' if ( prop.start_with?( '--' ))
+
         # sanitise the name by removing any browser prefixes
         prop = prop.gsub(/^(-\w+(-osx)?-)?/, '')
 
@@ -159,6 +165,7 @@ module SCSSLint
 
           end
 
+          # strip the leading hyphen and try again
           prop.gsub! /\-(\w+)$/, ''
 
         end
@@ -209,9 +216,17 @@ module SCSSLint
           # if it’s less-than, error out
           if idx < current_group
 
-            ext = config['extended_hinting'] ? " (assigned group ‘#{prop[:group].bold}’, found group ‘#{@groups[current_group].bold}’)" : ""
+            if prop[:name].start_with?( '--' )
 
-            add_lint prop[:node], "property ‘#{prop[:name].bold}’ should be #{hint_text_for(prop, grouped, props)}#{ext}"
+              add_lint( prop[:node], "CSS variables should be defined at the beginning of the rule (found #{prop[:name].bold})")
+
+            else
+
+              ext = config['extended_hinting'] ? " (assigned group ‘#{prop[:group].bold}’, found group ‘#{@groups[current_group].bold}’)" : ""
+
+              add_lint prop[:node], "property ‘#{prop[:name].bold}’ should be #{hint_text_for(prop, grouped, props)}#{ext}"
+
+            end
             good = false
           else
             current_group = idx
