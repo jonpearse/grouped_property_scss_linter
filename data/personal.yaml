@@ -13,6 +13,25 @@ groups:
       - clear
       - content
       - box-sizing
+      - object-fit
+
+  grid-parent:
+    properties:
+      - grid
+      - grid-template
+      - grid-template-*
+      - grid-auto-*
+      - grid-gap
+      - grid-row-gap
+      - grid-column-gap
+
+  grid-child:
+    properties:
+      - grid-area
+      - grid-row-start
+      - grid-row-end
+      - grid-column-start
+      - grid-column-end
 
   flex-parent:
     properties:
@@ -31,6 +50,11 @@ groups:
       - flex-shrink
       - flex-basis
       - align-self
+
+  columns:
+    properties:
+      - columns
+      - column-*
 
   tables:
     max_no_space: 1
@@ -55,7 +79,7 @@ groups:
       - margin*
       - transform
 
-  presentational:
+  borders:
     properties:
       - outline*
       - border
@@ -68,6 +92,9 @@ groups:
       - border-right*
       - border-bottom*
       - border-left*
+
+  presentational:
+    properties:
       - background*
       - opacity
       - z-index
@@ -92,9 +119,12 @@ groups:
       - text-transform
       - text-shadow
       - white-space
-      - content
-      
+
   interaction:
     properties:
       - transition
       - animation
+
+  generated:
+    properties:
+      - content
