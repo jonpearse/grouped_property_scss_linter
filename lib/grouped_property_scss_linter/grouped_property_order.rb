@@ -13,11 +13,11 @@ module SCSSLint
       @property_to_group = {}
       count = 0
       @configured_groups.each_pair do |name, group|
-        @groups.push name
-        group['properties'].each do |property|
-          @property_to_group[property] = { name: name, idx: count }
-        end
-        count = count+1
+
+        @groups <<  name
+        group['properties'].each{ |property| @property_to_group[property] = { name: name, idx: count }}
+        count += 1
+
       end
 
       yield
@@ -28,9 +28,7 @@ module SCSSLint
     def check_order( node )
 
       # 1. get a list of properties we can sort
-      sortable_properties = node.children.select do |child|
-        child.is_a? Sass::Tree::PropNode
-      end
+      sortable_properties = node.children.select{ |child| child.is_a?( Sass::Tree::PropNode )}
 
       # 2. group things
       grouped_properties = {}
@@ -40,15 +38,13 @@ module SCSSLint
         name = prop.name.join
 
         # attempt to match the name
-        group = find_match_for_property name
+        group = find_match_for_property( name )
 
         # if it didn’t find anything, move on
         next if group.nil?
 
         # if there’s no existing group
-        unless grouped_properties.key? group[:name]
-          grouped_properties[group[:name]] = { first: 1.0/0, last: 0, props: [] }
-        end
+        grouped_properties[group[:name]] = { first: 1.0/0, last: 0, props: [] } unless grouped_properties.key?( group[:name] )
 
         # build a concat
         concat = { name: name, node: prop, group: group[:name], line: prop.line, group_idx: group[:idx] }
@@ -64,9 +60,7 @@ module SCSSLint
       props.compact!
 
       # 3. call down
-      unless grouped_properties.empty?
-        check_sort_order props, grouped_properties
-      end
+      check_sort_order( props, grouped_properties ) unless grouped_properties.empty?
 
       # 4. yield so we can process children
       yield
@@ -80,8 +74,10 @@ module SCSSLint
     alias visit_prop  check_order
 
     def visit_if(node, &block)
+
       check_order(node, &block)
       visit(node.else) if node.else
+
     end
 
     private
@@ -100,11 +96,24 @@ module SCSSLint
         # 3. if it failed, bail
         raise 'No groups configured' if groups.nil?
 
-        # 4. munge
-        groups.update(groups) do |name, group|
+        # 4. if we’re worrying about CSS variables
+        if config['css_variables_first']
+
+          groups = {
+            'css_vars' => {
+              'properties' => [ '{VARIABLE}' ],
+              'space_around' => true,
+              'max_no_space' => 0
+            }
+          }.merge( groups )
+
+        end
+
+        # 5. munge
+        groups.update( groups ) do |name, group|
 
           # a. if it’s an array, cast it
-          group = { 'properties' => group } if group.is_a? Array
+          group = { 'properties' => group } if group.is_a?( Array )
 
           # b. merge in some defaults
           group['space_around'] = defaults['space_around'] if group['space_around'].nil?
@@ -123,22 +132,22 @@ module SCSSLint
       def load_groups_from_style
 
         # 0. if the style is blank/empty…
-        (raise 'No style specified' and return) if config['style'].empty?
+        ( raise 'No style specified' and return ) if config['style'].empty?
 
         # 1. attempt to find the file
-        data_filename = File.join(GroupedPropertyScssLinter::STYLES_DIR, "#{config['style']}.yaml")
+        data_filename = File.join( GroupedPropertyScssLinter::STYLES_DIR, "#{config['style']}.yaml" )
 
         # 2. does it exist
-        (raise "No style ‘#{config['style']}’ found" and return) unless File.exists? data_filename
+        ( raise "No style ‘#{config['style']}’ found" and return ) unless File.exists?( data_filename )
 
         # 3. can we read it
-        (raise "Cannot read style ‘#{config['style']}’" and return) unless File.readable? data_filename
+        ( raise "Cannot read style ‘#{config['style']}’" and return ) unless File.readable?( data_filename )
 
         # 4. open
-        style_config = YAML.load_file data_filename
+        style_config = YAML.load_file( data_filename )
 
         # 5. barf?
-        (raise "Bad style file found for ‘#{config['style']}’" and return) if style_config.nil? or style_config['groups'].nil?
+        ( raise "Bad style file found for ‘#{config['style']}’" and return ) if ( style_config.nil? or style_config['groups'].nil? )
 
         style_config['groups']
       end
@@ -146,8 +155,11 @@ module SCSSLint
       # Finds a matching group for a specified property
       def find_match_for_property( prop )
 
+        # if it’s a property
+        prop = '{VARIABLE}' if ( prop.start_with?( '--' ))
+
         # sanitise the name by removing any browser prefixes
-        prop = prop.gsub(/^(-\w+(-osx)?-)?/, '')
+        prop = prop.gsub( /^(-\w+(-osx)?-)?/, '' )
 
         # iteratively remove hyphens from the property…
         while prop =~ /\-/
@@ -155,18 +167,19 @@ module SCSSLint
           # if we know about this property or its splatted variety…
           if @property_to_group.key? prop or @property_to_group.key? prop+'*'
 
-            return @property_to_group[prop] || @property_to_group[prop+'*']
+            return ( @property_to_group[prop] || @property_to_group[prop+'*'] )
 
           end
 
-          prop.gsub! /\-(\w+)$/, ''
+          # strip the leading hyphen and try again
+          prop.gsub!( /\-(\w+)$/, '' )
 
         end
 
         # finally…
         if @property_to_group.key? prop or @property_to_group.key? prop+'*'
 
-          return @property_to_group[prop] || @property_to_group[prop+'*']
+          return ( @property_to_group[prop] || @property_to_group[prop+'*'] )
 
         end
 
@@ -186,7 +199,7 @@ module SCSSLint
         end
 
         # quick duck-type
-        quick_check_order props, grouped
+        quick_check_order( props, grouped )
 
         # if we’re checking whitespace, do so
         check_whitespace( grouped ) unless grouped.length < 2
@@ -204,17 +217,28 @@ module SCSSLint
           next if prop[:group] == @groups[current_group]
 
           # find an index
-          idx = @groups.index prop[:group]
+          idx = @groups.index( prop[:group] )
 
           # if it’s less-than, error out
           if idx < current_group
 
-            ext = config['extended_hinting'] ? " (assigned group ‘#{prop[:group].bold}’, found group ‘#{@groups[current_group].bold}’)" : ""
+            if prop[:name].start_with?( '--' )
 
-            add_lint prop[:node], "property ‘#{prop[:name].bold}’ should be #{hint_text_for(prop, grouped, props)}#{ext}"
+              add_lint( prop[:node], "CSS variables should be defined at the beginning of the rule (found #{prop[:name].bold})")
+
+            else
+
+              ext = config['extended_hinting'] ? " (assigned group ‘#{prop[:group].bold}’, found group ‘#{@groups[current_group].bold}’)" : ""
+
+              add_lint( prop[:node], "property ‘#{prop[:name].bold}’ should be #{hint_text_for(prop, grouped, props)}#{ext}" )
+
+            end
             good = false
+
           else
+
             current_group = idx
+
           end
 
         end
@@ -236,10 +260,10 @@ module SCSSLint
           group_conf = @configured_groups[name]
 
           # if we don’t care about space, bail
-          (curr_idx += 1 and next) unless group_conf['space_around']
+          ( curr_idx += 1 and next ) unless group_conf['space_around']
 
           # similarly, if this group is too small to trigger spacing, bounce
-          (curr_idx += 1 and next)unless current[:props].length > group_conf['max_no_space']
+          ( curr_idx += 1 and next ) unless current[:props].length > group_conf['max_no_space']
 
           # set some easy references
           next_group = detected_groups.length > curr_idx ? grouped[detected_groups[curr_idx + 1]] : nil
@@ -249,17 +273,18 @@ module SCSSLint
           if !next_group.nil? and ((next_group[:first] - current[:last]) < 2)
 
             # raise a lint error
-            add_lint current[:props].last[:node], "Must be at least one empty line after ‘#{current[:props].last[:name]}’"
+            add_lint( current[:props].last[:node], "Must be at least one empty line after ‘#{current[:props].last[:name]}’" )
 
             # also, flag the next group so we don’t catch it next time ‘round
             next_group[:raised] = true
+
           end
 
           # if there’s something before us, and there’s no space…
           if !prev_group.nil? and ((current[:first] - prev_group[:last]) < 2) and current[:raised].nil?
 
             # raise a lint error
-            add_lint current[:props].first[:node], "Must be at least one empty line before ‘#{current[:props].first[:name]}’"
+            add_lint( current[:props].first[:node], "Must be at least one empty line before ‘#{current[:props].first[:name]}’" )
 
           end
 
@@ -275,13 +300,14 @@ module SCSSLint
         dst_group = prop[:group]
 
         # if we know about the group…
-        if grouped_props.key? dst_group
+        if grouped_props.key?( dst_group )
 
           # get the first property of the current group
           dst_prop = grouped_props[dst_group][:props].first
 
           # if it’s a different property, return
           return "after ‘#{dst_prop[:name].bold}’" if dst_prop != prop
+
         end
 
         # either our offending property is the sole member of a group, or it’s very lost… so look for a previous marker
@@ -300,11 +326,13 @@ module SCSSLint
 
             # and return
             return "after ‘#{dst_prop[:name].bold}’"
+
           end
         end
 
         # otherwise, it probably belongs right at the start
         "before ‘#{context.first[:name].bold}’"
+
       end
   end
 end

@@ -9,6 +9,10 @@ groups:
     - bottom
     - left
 
+  grid:
+    - grid
+    - grid-*
+
   flex:
     - flex
     - flex-basis

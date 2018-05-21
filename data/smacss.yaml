@@ -11,6 +11,8 @@ groups:
     - right
     - bottom
     - left
+    - grid
+    - grid-*
     - flex
     - flex-basis
     - flex-direction
